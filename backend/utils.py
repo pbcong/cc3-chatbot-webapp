@@ -12,8 +12,9 @@ class ContextRetriever():
 
         self.embedding = OpenAIEmbeddings(
                 api_key=os.environ['OPENAI_API_KEY'])
+        db_path = os.path.join(os.path.dirname(__file__), "resources/db")
         self.vectorDB = FAISS.load_local(
-                "backend/resources/db", self.embedding, allow_dangerous_deserialization=True)
+                db_path, self.embedding, allow_dangerous_deserialization=True)
         self.retriever = self.vectorDB.as_retriever(
                 search_kwargs={"k": 5})
 

@@ -5,7 +5,6 @@ import { BrowserRouter as Router, Route, Routes, Link } from "react-router-dom";
 import ChatHistory from "./components/ChatHistory";
 import MessageInput from "./components/MessageInput";
 import Login from "./components/Login";
-
 export default function App() {
   const [chatHistory, setChatHistory] = useState([]); // Chat history (questions and answers)
 
@@ -59,13 +58,17 @@ export default function App() {
           <Route
             path="/"
             element={
-              <>
-                <div className="text-5xl text-center font-mono mt-4 font-bold">
+              <div className="flex flex-col h-[calc(100vh-8rem)] w-full">
+                <div className="text-5xl text-center font-mono mt-4 font-bold mb-4">
                   Ask me anything about CC0003!
                 </div>
-                <ChatHistory chatHistory={chatHistory} />
-                <MessageInput onSend={handleQuery} />
-              </>
+                <div className="flex-1 overflow-y-auto pb-20 w-full">
+                  <ChatHistory chatHistory={chatHistory} />
+                </div>
+                <div className="w-full bg-white shadow-md rounded-md fixed bottom-0">
+                  <MessageInput onSend={handleQuery} />
+                </div>
+              </div>
             }
           />
         </Routes>

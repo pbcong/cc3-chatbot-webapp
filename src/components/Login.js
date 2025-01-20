@@ -3,78 +3,75 @@ import { auth } from "../config/firebaseConfig";
 import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
+  signInWithPopup,
+  GoogleAuthProvider,
 } from "firebase/auth";
+
+import {
+  doSignInWithEmailAndPassword,
+  doSignInWithGoogle,
+  doCreateUserWithEmailAndPassword,
+} from "../config/auth";
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [isRegister, setIsRegister] = useState(false);
-  const [error, setError] = useState(""); // State variable for error message
+  const [isSigningIn, setIsSigningIn] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
-  const handleRegister = async () => {
-    try {
-      const userCredential = await createUserWithEmailAndPassword(
-        auth,
-        email,
-        password
-      );
-      console.log("Registered:", userCredential.user);
-      setError(""); // Clear error message on successful registration
-    } catch (error) {
-      console.error("Error registering:", error);
-      setError(error.message); // Set error message
+  const onSubmit = async (e) => {
+    e.preventDefault();
+    if (!isSigningIn) {
+      setIsSigningIn(true);
+      await doSignInWithEmailAndPassword(email, password);
+    }
+  };
+  const onGoogleSignIn = (e) => {
+    e.preventDefault();
+    if (!isSigningIn) {
+      setIsSigningIn(true);
+      doSignInWithGoogle().catch((error) => {
+        setErrorMessage(error.message);
+        setIsSigningIn(false);
+      });
     }
   };
 
-  const handleLogin = async () => {
-    try {
-      const userCredential = await signInWithEmailAndPassword(
-        auth,
-        email,
-        password
-      );
-      console.log("Logged in:", userCredential.user);
-      setError(""); // Clear error message on successful login
-    } catch (error) {
-      console.error("Error logging in:", error);
-      setError(error.message); // Set error message
+  const onRegister = async (e) => {
+    e.preventDefault();
+    if (isSigningIn) {
+      setIsSigningIn(false);
+      await doCreateUserWithEmailAndPassword(email, password);
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
-        <h2 className="text-2xl font-bold mb-6 text-center">
-          {isRegister ? "Register" : "Login"}
-        </h2>
-        {error && <div className="mb-4 text-red-500 text-center">{error}</div>}
-        <input
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          className="w-full p-3 mb-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-        />
-        <input
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          className="w-full p-3 mb-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-        />
-        <button
-          onClick={isRegister ? handleRegister : handleLogin}
-          className="w-full bg-blue-500 text-white p-3 rounded-lg hover:bg-blue-600 transition duration-300"
-        >
-          {isRegister ? "Register" : "Login"}
-        </button>
-        <button
-          onClick={() => setIsRegister(!isRegister)}
-          className="w-full mt-4 text-blue-500 hover:underline"
-        >
-          {isRegister ? "Switch to Login" : "Switch to Register"}
-        </button>
-      </div>
+    <div className="login-container">
+      <h2>{isSigningIn ? "Register" : "Login"}</h2>
+      <input
+        type="email"
+        placeholder="Email"
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
+      />
+      <input
+        type="password"
+        placeholder="Password"
+        value={password}
+        onChange={(e) => setPassword(e.target.value)}
+      />
+      <button onClick={isSigningIn ? onRegister : onSubmit}>
+        {isSigningIn ? "Register" : "Login"}
+      </button>
+      <button onClick={() => setIsSigningIn(!isSigningIn)}>
+        {isSigningIn ? "Switch to Login" : "Switch to Register"}
+      </button>
+      <button
+        onClick={onGoogleSignIn}
+        className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600"
+      >
+        Sign in with Google
+      </button>
     </div>
   );
 };
